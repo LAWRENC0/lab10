@@ -1,8 +1,13 @@
 package it.unibo.mvc;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  */
@@ -10,6 +15,9 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
     private static final int MIN = 0;
     private static final int MAX = 100;
     private static final int ATTEMPTS = 10;
+    private static final int LINE_MINIMUM = 0;
+    private static final int LINE_MAXIMUM = 1;
+    private static final int LINE_ATTEMPTS = 2;
 
     private final DrawNumber model;
     private final List<DrawNumberView> views;
@@ -17,8 +25,9 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
     /**
      * @param views
      *            the views to attach
+     * @throws IOException
      */
-    public DrawNumberApp(final DrawNumberView... views) {
+    public DrawNumberApp(final DrawNumberView... views) throws IOException {
         /*
          * Side-effect proof
          */
@@ -27,7 +36,12 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
             view.setObserver(this);
             view.start();
         }
-        this.model = new DrawNumberImpl(MIN, MAX, ATTEMPTS);
+        final Configuration config = new Configuration.Builder().
+            setAttempts(getConfigurationValue(LINE_ATTEMPTS))
+            .setMin(getConfigurationValue(LINE_MINIMUM))
+            .setMax(getConfigurationValue(LINE_MAXIMUM))
+            .build();
+        this.model = new DrawNumberImpl(config.getMin(), config.getMax(), config.getAttempts());
     }
 
     @Override
@@ -59,14 +73,31 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
          */
         System.exit(0);
     }
+    private BufferedReader getConfigurationFileReader() {
+        final InputStream in = ClassLoader.getSystemResourceAsStream("/settings/settings");
+        final BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        return br;
+    }
+
+    private int getConfigurationValue(int lineNumber) throws IOException {
+        final BufferedReader br = getConfigurationFileReader();
+        String line = "";
+        for(int i=0; i<lineNumber; i++){
+            line = br.readLine();
+        }
+        StringTokenizer st = new StringTokenizer(line);
+        st.nextToken();
+        st.nextToken();
+        return Integer.parseInt(st.toString());
+    }
 
     /**
      * @param args
      *            ignored
-     * @throws FileNotFoundException 
+     * @throws IOException
      */
-    public static void main(final String... args) throws FileNotFoundException {
-        new DrawNumberApp(new DrawNumberViewImpl());
+    public static void main(final String... args) throws IOException {
+        new DrawNumberApp(new DrawNumberViewImpl(), new DrawNumberViewImpl(),);
     }
 
 }

@@ -35,7 +35,7 @@ The default configuration file is available in the path `src/main/resources/conf
   Regular expressions (regex) are a very powerful tool, but we can not cover them in this course:
   ``StringTokenizer`` is recommended unless you already know regular expressions and how to use them.
 
-## Multiple views
+## Multiple views 
 
 * Notice that the architecture allows multiple views to be attached at runtime.
 * Attach at the same time two graphical views, the file logger, and the console view, and verify that the application works as expected
